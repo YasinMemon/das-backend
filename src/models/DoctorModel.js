@@ -103,10 +103,14 @@ const DoctorSchema = new Schema(
       required: true,
       trim: true,
     },
-    government_id: {
+    goverment_id: {
       type: String,
       required: true,
       trim: true,
+    },
+    verified: {
+      type: Boolean,
+      default: false,
     },
     createdAt: {
       type: Date,

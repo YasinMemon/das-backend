@@ -12,7 +12,7 @@ async function registerDoctor(req, res) {
 
     const newDoctor = { ...doctorData };
 
-    const hashedPassword = bcrypt.hash(newDoctor.password, 10);
+    const hashedPassword = await bcrypt.hash(newDoctor.password, 10);
     newDoctor.password = hashedPassword;
     const doctor = new Doctor(newDoctor);
     await doctor.save();
@@ -21,6 +21,14 @@ async function registerDoctor(req, res) {
     return res
       .status(500)
       .json({ message: "Server error.", error: error.message });
+  }
+}
+
+async function loginDoctor(req, res) {
+  try {
+    
+  } catch (error) {
+    
   }
 }
 
