@@ -4,11 +4,18 @@ import dotenv from "dotenv";
 import UserAuthRouter from "./routes/userRoutes/authRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 dotenv.config();
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 await ConnectDB();
 

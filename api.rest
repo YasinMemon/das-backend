@@ -27,10 +27,16 @@ Content-Type: application/json
   "phone": "+1234567890",
   "password": "securepassword", 
   "specialty": "Cardiology",
-  "licenseNumber": "LIC123456",
-  "yearsOfExperience": 10,
-  "clinicAddress": "123 Medical St, Health City",
-  "contactNumber": "+1234567890",
+  "experience": 10,
+  "qualification": "MD",
+  "registration_number": "REG123456",
+  "hostpital_name": "HealthCare Hospital",
+  "city": "Health City",
+  "consulation_type": "In-person",
+  "consulation_fee": 150,
+  "available_days": ["Monday", "Wednesday", "Friday"],
+  "time_slots": ["10:00-12:00", "14:00-16:00"],
+  "consulation_duration": 30,
+  "medical_license": "MEDLIC123456",
   "goverment_id": "GOV123456"
-
 }
