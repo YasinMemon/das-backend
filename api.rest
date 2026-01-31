@@ -40,3 +40,15 @@ Content-Type: application/json
   "medical_license": "MEDLIC123456",
   "goverment_id": "GOV123456"
 }
+
+### delete and create admin
+GET http://localhost:5000/api/admin/create
+
+### admin login
+POST http://localhost:5000/api/admin/login
+Content-Type: application/json
+
+{
+  "username" : "doctor",
+  "password" : "password"
+}
