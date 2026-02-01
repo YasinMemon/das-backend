@@ -18,4 +18,12 @@ async function adminLogin(req, res) {
   }
 }
 
-export { adminLogin };
+async function ApproveDoctor(req, res) {
+  try {
+    const { doctorId } = req.params;
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+export { adminLogin, ApproveDoctor };

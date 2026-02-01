@@ -41,6 +41,22 @@ Content-Type: application/json
   "goverment_id": "GOV123456"
 }
 
+### login doctor
+POST http://localhost:5000/api/doctor/login
+Content-Type: application/json
+
+{
+  "email": "memonyasin2007@gmail.com",
+  "password": "securepassword"
+}
+
+POST http://localhost:5000/api/doctor/logout
+Content-Type: application/json
+
+{
+  "token": "<doctor_jwt_token>"
+} 
+
 ### delete and create admin
 GET http://localhost:5000/api/admin/create
 
