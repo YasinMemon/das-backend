@@ -5,11 +5,62 @@ import jwt from "jsonwebtoken";
 async function registerDoctor(req, res) {
   // Registration logic here
   try {
-    const doctorData = req.body;
+    const {
+      fullName,
+      email,
+      phone,
+      password,
+      specialty,
+      experience,
+      qualifications,
+      registration_number,
+      hospital_name,
+      city,
+      consulation_type,
+      consulation_fee,
+      available_days,
+      time_slots,
+      conclusion_duration,
+    } = req.body;
 
-    if (!doctorData) {
-      return res.status(400).json({ message: "Doctor data is required." });
+    const medical_license = req.files?.medical_license;
+    const goverment_id = req.files?.goverment_id;
+
+    const existingDoctor = await Doctor.findOne({ email });
+
+    if (existingDoctor) {
+      return res.status(409).json({ message: "Doctor already exists." });
     }
+
+    if (!medical_license || !goverment_id) {
+      return res
+        .status(400)
+        .json({ message: "Medical license and government ID are required." });
+    }
+
+    if (!fullName || !email || !phone || !password) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    const doctorData = {
+      fullName,
+      email,
+      phone,
+      password,
+      specialty,
+      experience,
+      qualifications,
+      registration_number,
+      hospital_name,
+      city,
+      consulation_type,
+      consulation_fee,
+      available_days,
+      time_slots,
+      conclusion_duration,
+      medical_license: medical_license[0].path,
+      goverment_id: goverment_id[0].path,
+    };
 
     const newDoctor = { ...doctorData };
 
