@@ -78,8 +78,21 @@ async function registerDoctor(req, res) {
     const hashedPassword = await bcrypt.hash(newDoctor.password, 10);
     newDoctor.password = hashedPassword;
     const doctor = new Doctor(newDoctor);
+
+    const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
     await doctor.save();
-    return res.status(201).json({ message: "Doctor registered successfully." });
+    return res
+      .status(201)
+      .json({ message: "Doctor registered successfully." })
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 1000, // 1 hour
+      });
   } catch (error) {
     return res
       .status(500)

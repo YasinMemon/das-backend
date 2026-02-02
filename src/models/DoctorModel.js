@@ -109,6 +109,11 @@ const DoctorSchema = new Schema(
       trim: true,
     },
     verified: {
+      type: "String",
+      enum: ["Pending", "Verified", "Rejected"],
+      default: "Pending",
+    },
+    isActive: {
       type: Boolean,
       default: false,
     },

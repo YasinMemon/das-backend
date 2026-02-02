@@ -23,7 +23,7 @@ Content-Type: application/json
 
 {
   "fullName": "Dr. John Doe",
-  "email": "memonyasin2007@gmail.com",
+  "email": "memonyasin3007@gmail.com",
   "phone": "+1234567890",
   "password": "securepassword", 
   "specialty": "Cardiology",
@@ -37,8 +37,8 @@ Content-Type: application/json
   "available_days": ["Monday", "Wednesday", "Friday"],
   "time_slots": ["10:00-12:00", "14:00-16:00"],
   "conclusion_duration": 30,
-  "medical_license": "MEDLIC123456",
-  "goverment_id": "GOV123456"
+  "medical_license": "something.pdf",
+  "goverment_id": "idproof.pdf"
 }
 
 ### login doctor
