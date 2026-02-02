@@ -86,7 +86,11 @@ async function registerDoctor(req, res) {
     await doctor.save();
     return res
       .status(201)
-      .json({ message: "Doctor registered successfully." })
+      .json({
+        message: "Doctor registered successfully.",
+        doctor,
+        role: "doctor",
+      })
       .cookie("token", token, {
         httpOnly: true,
         secure: true,
@@ -120,12 +124,14 @@ async function loginDoctor(req, res) {
       expiresIn: "1h",
     });
 
-    return res.json({ message: "Login successful." }).cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
+    return res
+      .json({ message: "Login successful.", doctor, role: "doctor" })
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 1000, // 1 hour
+      });
   } catch (error) {
     return res.status(500).json({ message: "Server error." });
   }

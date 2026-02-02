@@ -65,7 +65,7 @@ async function UserLogin(req, res) {
 
   res
     .status(200)
-    .json({ message: "User logged in successfully", user })
+    .json({ message: "User logged in successfully", user, role: "user" })
     .cookie("token", token, {
       httpOnly: true,
       secure: true,

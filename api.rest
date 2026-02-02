@@ -68,3 +68,7 @@ Content-Type: application/json
   "username" : "doctor",
   "password" : "password"
 }
+
+### get all doctors (admin only)
+GET http://localhost:5000/api/admin/doctors
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvY3RvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDAyMzk0MCwiZXhwIjoxNzcwMTEwMzQwfQ.eT-2ix7PhK-wZriLiJSs4bMGtbpW7Qog9SB_TrMmdng
