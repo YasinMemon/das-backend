@@ -1,9 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import express from "express";
 import { ConnectDB } from "./config/db.js";
-import dotenv from "dotenv";
 import UserAuthRouter from "./routes/userRoutes/authRoutes.js";
 import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
-dotenv.config();
 import cors from "cors";
 import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 

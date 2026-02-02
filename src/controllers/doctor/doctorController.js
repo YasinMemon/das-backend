@@ -1,6 +1,7 @@
 import Doctor from "../../models/DoctorModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js";
 
 async function registerDoctor(req, res) {
   // Registration logic here
@@ -42,6 +43,16 @@ async function registerDoctor(req, res) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    const medicalUpload = await uploadToCloudinary(
+      medical_license[0].buffer,
+      "doctor_documents",
+    );
+
+    const idUpload = await uploadToCloudinary(
+      goverment_id[0].buffer,
+      "doctor_documents",
+    );
+
     const doctorData = {
       fullName,
       email,
@@ -58,8 +69,8 @@ async function registerDoctor(req, res) {
       available_days,
       time_slots,
       conclusion_duration,
-      medical_license: medical_license[0].path,
-      goverment_id: goverment_id[0].path,
+      medical_license: medicalUpload.secure_url,
+      goverment_id: idUpload.secure_url,
     };
 
     const newDoctor = { ...doctorData };
