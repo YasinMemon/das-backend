@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 
 const DoctorSchema = new Schema(
   {
+    profile_image: {
+      type: String,
+      trim: true,
+    },
     fullName: {
       type: String,
       required: true,
@@ -109,7 +113,7 @@ const DoctorSchema = new Schema(
       trim: true,
     },
     verified: {
-      type: "String",
+      type: String,
       enum: ["Pending", "Verified", "Rejected"],
       default: "Pending",
     },

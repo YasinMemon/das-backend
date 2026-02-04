@@ -30,7 +30,7 @@ async function adminLogin(req, res) {
         sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-     .json({ message: "Login successful", role: "admin" });
+      .json({ message: "Login successful", role: "admin" });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -50,9 +50,36 @@ async function GetAllDoctors(req, res) {
 async function ApproveDoctor(req, res) {
   try {
     const { doctorId } = req.params;
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+    doctor.verified = "Verified";
+    await doctor.save();
+    return res
+      .status(200)
+      .json({ status: true, message: "Doctor approved successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
 }
 
-export { adminLogin, GetAllDoctors, ApproveDoctor };
+async function RejectDoctor(req, res) {
+  try {
+    const { doctorId } = req.params;
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+    doctor.verified = "Rejected";
+    await doctor.save();
+    return res
+      .status(200)
+      .json({ status: true, message: "Doctor rejected successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+export { adminLogin, GetAllDoctors, ApproveDoctor, RejectDoctor };
+  

@@ -26,7 +26,7 @@ async function registerDoctor(req, res) {
 
     const medical_license = req.files?.medical_license;
     const goverment_id = req.files?.goverment_id;
-
+    const profile_image = req.files?.profile_image;
     const existingDoctor = await Doctor.findOne({ email });
 
     if (existingDoctor) {
@@ -53,6 +53,11 @@ async function registerDoctor(req, res) {
       "doctor_documents",
     );
 
+    const profileUpload = await uploadToCloudinary(
+      profile_image[0].buffer,
+      "doctor_profiles",
+    );
+
     const doctorData = {
       fullName,
       email,
@@ -71,6 +76,7 @@ async function registerDoctor(req, res) {
       conclusion_duration,
       medical_license: medicalUpload.secure_url,
       goverment_id: idUpload.secure_url,
+      profile_image: profileUpload.secure_url,
     };
 
     const newDoctor = { ...doctorData };

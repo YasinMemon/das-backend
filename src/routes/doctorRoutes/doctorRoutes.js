@@ -13,6 +13,7 @@ doctorRoutes.post(
   uploads.fields([
     { name: "medical_license", maxCount: 1 },
     { name: "goverment_id", maxCount: 1 },
+    { name: "profile_image", maxCount: 1 },
   ]),
   registerDoctor,
 );

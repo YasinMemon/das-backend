@@ -2,6 +2,7 @@ import { hash } from "bcrypt";
 import User from "../models/UserModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import Doctor from "../models/DoctorModel.js";
 
 async function UserRegister(req, res) {
   try {
@@ -74,4 +75,15 @@ async function UserLogin(req, res) {
     });
 }
 
-export { UserRegister, UserLogin };
+async function GetAllVerifiedDoctors(req, res) {
+  try {
+    const doctors = await Doctor.find({ verified: "Verified" });
+    return res
+      .status(200)
+      .json({ status: true, doctors, message: "Doctors fetched successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+export { UserRegister, UserLogin, GetAllVerifiedDoctors };

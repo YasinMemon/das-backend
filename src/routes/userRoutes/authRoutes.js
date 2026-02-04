@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { UserLogin, UserRegister } from "../../controllers/userControllers.js";
+import {
+  GetAllVerifiedDoctors,
+  UserLogin,
+  UserRegister,
+} from "../../controllers/userControllers.js";
 
 const UserAuthRouter = Router();
 
 UserAuthRouter.post("/user/register", UserRegister);
 UserAuthRouter.post("/user/login", UserLogin);
+UserAuthRouter.get("/user/verified/doctors", GetAllVerifiedDoctors);
 
 export default UserAuthRouter;
