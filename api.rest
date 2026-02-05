@@ -13,8 +13,8 @@ POST http://localhost:5000/api/user/login
 Content-Type: application/json
 
 {
-  "email": "newuser7@example.com",
-  "password": "securepassword"
+  "email": "memonyasin2007@gmail.com",
+  "password": "YasinMemon@10"
 }
 
 ### register doctor
@@ -72,3 +72,15 @@ Content-Type: application/json
 ### get all doctors (admin only)
 GET http://localhost:5000/api/admin/doctors
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvY3RvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDIwMTg0NSwiZXhwIjoxNzcwMjg4MjQ1fQ.ED0jfheo-qaJJ5s32KINBb1-kVPpw0ZdG1CKo63JeX8
+
+### create appointment
+POST http://localhost:5000/api/appointment/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MDI2OTA5NCwiZXhwIjoxNzcwMzU1NDk0fQ.YcaSIo9_kO0zh_ZNXk4cUZvnczYqHEwU2cf2IhMYGfA
+
+{
+  "doctorId": "6983274f4fb97e73742c0da4",
+  "appointmentDate": "2026-02-09",
+  "timeSlot": ["2"],
+  "consultationType": "Online"
+}

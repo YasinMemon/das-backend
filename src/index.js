@@ -8,6 +8,7 @@ import doctorRoutes from "./routes/doctorRoutes/doctorRoutes.js";
 import cors from "cors";
 import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 import cookieParser from "cookie-parser";
+import appointmentRoutes from "./routes/appointmentRoutes/AppointmentRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,6 +28,7 @@ await ConnectDB();
 app.use("/api", UserAuthRouter);
 app.use("/api", doctorRoutes);
 app.use("/api", adminRoutes);
+app.use("/api", appointmentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

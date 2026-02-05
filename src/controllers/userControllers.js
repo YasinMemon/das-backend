@@ -66,13 +66,13 @@ async function UserLogin(req, res) {
 
   res
     .status(200)
-    .json({ message: "User logged in successfully", user, role: "user" })
     .cookie("token", token, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
+    })
+    .json({ message: "User logged in successfully", user, role: "user" });
 }
 
 async function GetAllVerifiedDoctors(req, res) {

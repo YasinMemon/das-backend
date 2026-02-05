@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 import mongoose from "mongoose";
 
+
 const DoctorSchema = new Schema(
   {
     profile_image: {
