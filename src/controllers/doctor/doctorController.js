@@ -92,16 +92,16 @@ async function registerDoctor(req, res) {
     await doctor.save();
     return res
       .status(201)
-      .json({
-        message: "Doctor registered successfully.",
-        doctor,
-        role: "doctor",
-      })
-      .cookie("token", token, {
+      .cookie("doctorToken", token, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
         maxAge: 60 * 60 * 1000, // 1 hour
+      })
+      .json({
+        message: "Doctor registered successfully.",
+        doctor,
+        role: "doctor",
       });
   } catch (error) {
     return res
@@ -132,7 +132,7 @@ async function loginDoctor(req, res) {
 
     return res
       .json({ message: "Login successful.", doctor, role: "doctor" })
-      .cookie("token", token, {
+      .cookie("doctorToken", token, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
@@ -145,11 +145,12 @@ async function loginDoctor(req, res) {
 
 const logoutDoctor = (req, res) => {
   try {
-    const token = req.cookies.token;
+    const token =
+      req.cookies.doctorToken || req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(400).json({ message: "No token provided." });
     }
-    res.clearCookie("token", {
+    res.clearCookie("doctorToken", {
       httpOnly: true,
       secure: true,
       sameSite: "strict",

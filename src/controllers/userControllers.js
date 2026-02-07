@@ -30,7 +30,7 @@ async function UserRegister(req, res) {
     res
       .status(201)
       .json({ message: "User registered successfully", user: UserModel })
-      .cookie("token", token, {
+      .cookie("userToken", token, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
@@ -66,7 +66,7 @@ async function UserLogin(req, res) {
 
   res
     .status(200)
-    .cookie("token", token, {
+    .cookie("userToken", token, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",

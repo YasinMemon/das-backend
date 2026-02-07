@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken";
 import Doctor from "../models/DoctorModel.js";
 
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  const token =
+    req.cookies.userToken ||
+    req.cookies.doctorToken ||
+    req.cookies.adminToken ||
+    req.headers.authorization?.split(" ")[1];
 
   if (!token) {
     return res
