@@ -1,4 +1,5 @@
 import Doctor from "../../models/DoctorModel.js";
+import Appointment from "../../models/AppointmentModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { uploadToCloudinary } from "../../utils/uploadToCloudinary.js";
@@ -131,13 +132,13 @@ async function loginDoctor(req, res) {
     });
 
     return res
-      .json({ message: "Login successful.", doctor, role: "doctor" })
       .cookie("doctorToken", token, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
         maxAge: 60 * 60 * 1000, // 1 hour
-      });
+      })
+      .json({ message: "Login successful.", doctor, role: "doctor" });
   } catch (error) {
     return res.status(500).json({ message: "Server error." });
   }
@@ -161,4 +162,18 @@ const logoutDoctor = (req, res) => {
   }
 };
 
-export { registerDoctor, loginDoctor, logoutDoctor };
+const getAllAppointments = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+    const appointments = await Appointment.find({ doctor: doctorId })
+      .populate("patient", "fullName email phone")
+      .sort({ appointmentDate: -1 });
+    return res
+      .status(200)
+      .json({ message: "Appointments fetched successfully.", appointments });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error." });
+  }
+};
+
+export { registerDoctor, loginDoctor, logoutDoctor, getAllAppointments };

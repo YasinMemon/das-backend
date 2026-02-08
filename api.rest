@@ -50,6 +50,7 @@ Content-Type: application/json
   "password": "securepassword"
 }
 
+### doctor logout
 POST http://localhost:5000/api/doctor/logout
 Content-Type: application/json
 
@@ -84,3 +85,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliN
   "timeSlot": ["2"],
   "consultationType": "Online"
 }
+
+### get user appointments
+GET http://localhost:5000/api/appointment/user
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MDI2OTA5NCwiZXhwIjoxNzcwMzU1NDk0fQ.YcaSIo9_kO0zh_ZNXk4cUZvnczYqHEwU2cf2IhMYGfA
+
+### get doctor appointments
+GET http://localhost:5000/api/doctor/appointments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MDUyNDQzNywiZXhwIjoxNzcwNjEwODM3fQ.OPFrPN_hRmZUw9KqrI86h10s5cOHmZpEx2A7vVvUhd4

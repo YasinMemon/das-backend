@@ -1,10 +1,12 @@
 import { Router } from "express";
 import {
+  getAllAppointments,
   loginDoctor,
   logoutDoctor,
   registerDoctor,
 } from "../../controllers/doctor/doctorController.js";
 import uploads from "../../config/multer.js";
+import verifyToken from "../../middlewares/authMiddleware.js";
 
 const doctorRoutes = Router();
 
@@ -19,5 +21,6 @@ doctorRoutes.post(
 );
 doctorRoutes.post("/doctor/login", loginDoctor);
 doctorRoutes.post("/doctor/logout", logoutDoctor);
+doctorRoutes.get("/doctor/appointments", verifyToken, getAllAppointments);
 
 export default doctorRoutes;
