@@ -4,9 +4,10 @@ import {
   loginDoctor,
   logoutDoctor,
   registerDoctor,
+  updateSchedule,
 } from "../../controllers/doctor/doctorController.js";
 import uploads from "../../config/multer.js";
-import verifyToken from "../../middlewares/authMiddleware.js";
+import verifyToken, { verifyDoctor } from "../../middlewares/authMiddleware.js";
 
 const doctorRoutes = Router();
 
@@ -22,5 +23,6 @@ doctorRoutes.post(
 doctorRoutes.post("/doctor/login", loginDoctor);
 doctorRoutes.post("/doctor/logout", logoutDoctor);
 doctorRoutes.get("/doctor/appointments", verifyToken, getAllAppointments);
+doctorRoutes.put("/doctor/schedule", verifyToken, updateSchedule);
 
 export default doctorRoutes;

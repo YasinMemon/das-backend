@@ -3,6 +3,7 @@ import User from "../models/UserModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Doctor from "../models/DoctorModel.js";
+import Appointment from "../models/AppointmentModel.js";
 
 async function UserRegister(req, res) {
   try {
@@ -29,13 +30,13 @@ async function UserRegister(req, res) {
     // Registration logic goes here
     res
       .status(201)
-      .json({ message: "User registered successfully", user: UserModel })
       .cookie("userToken", token, {
         httpOnly: true,
         secure: true,
         sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-      });
+      })
+      .json({ message: "User registered successfully", user: UserModel });
   } catch (error) {
     console.error("Error registering user:", error);
   }
@@ -86,4 +87,54 @@ async function GetAllVerifiedDoctors(req, res) {
   }
 }
 
-export { UserRegister, UserLogin, GetAllVerifiedDoctors };
+async function GetVerifiedDoctorsBySpecialization(req, res) {
+  try {
+    const { specialization } = req.params;
+
+    const doctors = await Doctor.find({
+      specialty: { $regex: new RegExp(`^${specialization}$`, "i") },
+      verified: "Verified",
+    });
+
+    return res.json({
+      status: true,
+      doctors,
+      message: "Doctors fetched successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: false, message: "Server error" });
+  }
+}
+
+async function GetMyAppointments(req, res) {
+  try {
+    const userId = req.user.id;
+    const appointments = await Appointment.find({ patient: userId })
+      .populate("doctor", "fullName specialty profile_image city phone experience consulation_fee")
+      .sort({ appointmentDate: -1 });
+
+    if (!appointments) {
+      return res
+        .status(404)
+        .json({ status: false, message: "No appointments found" });
+    }
+
+    return res.status(200).json({
+      status: true,
+      appointments,
+      message: "Appointments fetched successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: false, message: "Server error" });
+  }
+}
+
+export {
+  UserRegister,
+  UserLogin,
+  GetAllVerifiedDoctors,
+  GetVerifiedDoctorsBySpecialization,
+  GetMyAppointments,
+};

@@ -24,9 +24,9 @@ async function adminLogin(req, res) {
 
     return res
       .status(200)
-      .cookie("token", token, {
+      .cookie("adminToken", token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
@@ -81,5 +81,18 @@ async function RejectDoctor(req, res) {
   }
 }
 
-export { adminLogin, GetAllDoctors, ApproveDoctor, RejectDoctor };
+async function adminLogout(req, res) {
+  try {
+    res.clearCookie("adminToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    return res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
+export { adminLogin, adminLogout, GetAllDoctors, ApproveDoctor, RejectDoctor };
   

@@ -31,7 +31,50 @@ export const CreateAppointment = async (req, res) => {
         .json({ message: "Doctor is not available on the selected day." });
     }
 
-    if (!doctor.time_slots.includes(timeSlot)) {
+    // Check if the time slot is available
+    // Time slots can be stored as ranges (morning, afternoon, evening) or specific times
+    const isTimeSlotAvailable = (slots, selectedTime) => {
+      if (!slots || slots.length === 0) return false;
+      
+      // Define time ranges for slot names
+      const slotRanges = {
+        morning: { start: 9, end: 12 },    // 9 AM - 12 PM
+        afternoon: { start: 12, end: 17 }, // 12 PM - 5 PM
+        evening: { start: 17, end: 21 }    // 5 PM - 9 PM
+      };
+      
+      // Extract hour from selected time (e.g., "10:00 AM" -> 10)
+      const timeMatch = selectedTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!timeMatch) return false;
+      
+      let hour = parseInt(timeMatch[1]);
+      const period = timeMatch[3].toUpperCase();
+      
+      // Convert to 24-hour format
+      if (period === 'PM' && hour !== 12) hour += 12;
+      if (period === 'AM' && hour === 12) hour = 0;
+      
+      // Check if selected time falls within any available slot
+      for (const slot of slots) {
+        const slotLower = slot.toLowerCase();
+        
+        // If slot is a range name (morning/afternoon/evening)
+        if (slotRanges[slotLower]) {
+          const range = slotRanges[slotLower];
+          if (hour >= range.start && hour < range.end) {
+            return true;
+          }
+        }
+        // If slot is a specific time, check for exact match
+        else if (slot === selectedTime) {
+          return true;
+        }
+      }
+      
+      return false;
+    };
+
+    if (!isTimeSlotAvailable(doctor.time_slots, timeSlot)) {
       return res
         .status(400)
         .json({ message: "Selected time slot is not available." });
@@ -60,6 +103,13 @@ export const CreateAppointment = async (req, res) => {
     });
 
     await newAppointment.save();
+    console.log("New appointment created:", {
+      appointmentId: newAppointment._id,
+      patient: patientId,
+      doctor: doctorId,
+      appointmentDate: appointmentDate
+    });
+    
     return res.status(201).json({
       message: "Appointment created successfully.",
       appointment: newAppointment,

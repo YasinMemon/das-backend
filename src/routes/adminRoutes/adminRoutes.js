@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   adminLogin,
+  adminLogout,
   ApproveDoctor,
   RejectDoctor,
   GetAllDoctors,
@@ -12,6 +13,7 @@ const adminRoutes = Router();
 
 adminRoutes.get("/admin/create", deleteAndCreateAdmin);
 adminRoutes.post("/admin/login", adminLogin);
+adminRoutes.post("/admin/logout", verifyToken, verifyAdmin, adminLogout);
 adminRoutes.get("/admin/doctors", verifyToken, verifyAdmin, GetAllDoctors);
 adminRoutes.patch(
   "/admin/approve/:doctorId",

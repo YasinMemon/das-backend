@@ -46,8 +46,8 @@ POST http://localhost:5000/api/doctor/login
 Content-Type: application/json
 
 {
-  "email": "memonyasin2007@gmail.com",
-  "password": "securepassword"
+  "email": "johndoe@gmail.com",
+  "password": "YasinMemon@10"
 }
 
 ### doctor logout
@@ -74,6 +74,10 @@ Content-Type: application/json
 GET http://localhost:5000/api/admin/doctors
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRvY3RvciIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MDIwMTg0NSwiZXhwIjoxNzcwMjg4MjQ1fQ.ED0jfheo-qaJJ5s32KINBb1-kVPpw0ZdG1CKo63JeX8
 
+### get Doctor by Specialization
+GET http://localhost:5000/api/user/verified/doctors/Cardiologist
+
+
 ### create appointment
 POST http://localhost:5000/api/appointment/create
 Content-Type: application/json
@@ -86,11 +90,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliN
   "consultationType": "Online"
 }
 
-### get user appointments
-GET http://localhost:5000/api/appointment/user
-
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MDI2OTA5NCwiZXhwIjoxNzcwMzU1NDk0fQ.YcaSIo9_kO0zh_ZNXk4cUZvnczYqHEwU2cf2IhMYGfA
-
 ### get doctor appointments
 GET http://localhost:5000/api/doctor/appointments
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MDUyNDQzNywiZXhwIjoxNzcwNjEwODM3fQ.OPFrPN_hRmZUw9KqrI86h10s5cOHmZpEx2A7vVvUhd4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODMzMzI2MGI3NzBhNmRlOWIxYWI1ZCIsImlhdCI6MTc3MDg3MjQ1MCwiZXhwIjoxNzcwODc2MDUwfQ.z3yVE3WD9fKczUl8w8-uNIFOynIsCvENCLmph3T_i2Q
+
+### get user appointments
+GET http://localhost:5000/api/user/appointments
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5N2VkMTliNjFmMDMwNDgwOGJiOWIyOCIsImlhdCI6MTc3MTIxNzQyMywiZXhwIjoxNzcxMzAzODIzfQ.WkkdOLpiswjK35hidfQ1xhcA3sg_5CuCNiW15Nz_1Co
+
+### update doctor schedule
+PUT http://localhost:5000/api/doctor/schedule
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5OTJiMjk3ZDg2YTgwY2I0NGI2NjgwMSIsImlhdCI6MTc3MTIzODM4MiwiZXhwIjoxNzcxMzI0NzgyfQ.J52Upi2o-0RQWqCcc71-UuLr_qX5rN6vxefu1QhuJbQ
+
+{
+  "available_days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+  "time_slots": ["10:00-12:00", "14:00-16:00"]
+}
