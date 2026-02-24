@@ -15,9 +15,25 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
+
+// CORS configuration for both development and production
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ddass.netlify.app",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -25,7 +41,7 @@ app.use("/uploads", express.static("uploads"));
 
 await ConnectDB();
 
-app.use("/", (req, res, next) => {
+app.get("/", (req, res) => {
   res.send("Welcome to the Doctor Appointment System API");
 });
 app.use("/api", UserAuthRouter);
