@@ -110,7 +110,7 @@ async function registerDoctor(req, res) {
     const doctor = new Doctor(newDoctor);
 
     const token = jwt.sign(
-      { id: doctor._id.toString() },
+      { id: doctor._id.toString(), role: "doctor" },
       process.env.JWT_SECRET,
       {
         expiresIn: "24h",
@@ -118,6 +118,11 @@ async function registerDoctor(req, res) {
     );
 
     await doctor.save();
+    
+    // Clear conflicting cookies
+    res.clearCookie("userToken");
+    res.clearCookie("adminToken");
+    
     return res
       .status(201)
       .cookie("doctorToken", token, {
@@ -131,6 +136,7 @@ async function registerDoctor(req, res) {
         message: "Doctor registered successfully.",
         doctor,
         role: "doctor",
+        token,
       });
   } catch (error) {
     return res
@@ -156,7 +162,7 @@ async function loginDoctor(req, res) {
     }
 
     const token = jwt.sign(
-      { id: doctor._id.toString() },
+      { id: doctor._id.toString(), role: "doctor" },
       process.env.JWT_SECRET,
       {
         expiresIn: "24h",
@@ -183,7 +189,7 @@ async function loginDoctor(req, res) {
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
         path: "/",
       })
-      .json({ message: "Login successful.", doctor, role: "doctor" });
+      .json({ message: "Login successful.", doctor, role: "doctor", token });
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ message: "Server error." });

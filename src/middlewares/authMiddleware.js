@@ -2,10 +2,12 @@ import jwt from "jsonwebtoken";
 import Doctor from "../models/DoctorModel.js";
 
 const verifyToken = (req, res, next) => {
+  // Check tokens in order of priority: admin > doctor > user
+  // This ensures the most specific role is used first
   const token =
-    req.cookies.userToken ||
-    req.cookies.doctorToken ||
     req.cookies.adminToken ||
+    req.cookies.doctorToken ||
+    req.cookies.userToken ||
     req.headers.authorization?.split(" ")[1];
 
   if (!token) {
@@ -26,7 +28,12 @@ const verifyToken = (req, res, next) => {
 export default verifyToken;
 
 const verifyAdmin = (req, res, next) => {
-  if (req.user.role !== "admin") {
+  console.log("\n=== verifyAdmin middleware ===");
+  console.log("req.user:", req.user);
+  console.log("req.user.role:", req.user?.role);
+  
+  if (!req.user || req.user.role !== "admin") {
+    console.log("Access denied - role check failed");
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
   next();

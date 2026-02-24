@@ -22,21 +22,25 @@ async function UserRegister(req, res) {
     };
 
     const UserModel = await User.create(user);
-    const token = jwt.sign({ id: UserModel._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: UserModel._id, role: "user" }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
     console.log("user registration token:", token);
+
+    // Clear conflicting cookies
+    res.clearCookie("doctorToken");
+    res.clearCookie("adminToken");
 
     // Registration logic goes here
     res
       .status(201)
       .cookie("userToken", token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-      .json({ message: "User registered successfully", user: UserModel });
+      .json({ message: "User registered successfully", user: UserModel, token });
   } catch (error) {
     console.error("Error registering user:", error);
   }
@@ -61,19 +65,23 @@ async function UserLogin(req, res) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id, role: "user" }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
+
+  // Clear conflicting cookies
+  res.clearCookie("doctorToken");
+  res.clearCookie("adminToken");
 
   res
     .status(200)
     .cookie("userToken", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     })
-    .json({ message: "User logged in successfully", user, role: "user" });
+    .json({ message: "User logged in successfully", user, role: "user", token });
 }
 
 async function GetAllVerifiedDoctors(req, res) {

@@ -15,22 +15,26 @@ async function adminLogin(req, res) {
     }
 
     const token = jwt.sign(
-      { username, role: "admin" },
+      { id: "admin", username, role: "admin" },
       process.env.JWT_SECRET,
       {
         expiresIn: "1d",
       },
     );
+    
+    // Clear all other cookies to prevent token conflicts
+    res.clearCookie("userToken");
+    res.clearCookie("doctorToken");
 
     return res
       .status(200)
       .cookie("adminToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-      .json({ message: "Login successful", role: "admin" });
+      .json({ message: "Login successful", role: "admin", token });
   } catch (error) {
     return res.status(500).json({ message: "Server error" });
   }
@@ -86,7 +90,7 @@ async function adminLogout(req, res) {
     res.clearCookie("adminToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
     return res.status(200).json({ message: "Logout successful" });
   } catch (error) {

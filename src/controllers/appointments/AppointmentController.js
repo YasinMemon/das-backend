@@ -21,11 +21,12 @@ export const CreateAppointment = async (req, res) => {
     }
 
     // Additional logic to create and save the appointment would go here
-    if (
-      !doctor.available_days.includes(
-        new Date(appointmentDate).toLocaleString("en-US", { weekday: "long" }),
-      )
-    ) {
+    // Parse the date correctly to avoid timezone issues
+    // appointmentDate format is "YYYY-MM-DD", append time to ensure correct day
+    const selectedDate = new Date(appointmentDate + 'T00:00:00');
+    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+    
+    if (!doctor.available_days.includes(dayName)) {
       return res
         .status(400)
         .json({ message: "Doctor is not available on the selected day." });
