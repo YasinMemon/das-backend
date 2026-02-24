@@ -25,6 +25,9 @@ app.use("/uploads", express.static("uploads"));
 
 await ConnectDB();
 
+app.use("/", (req, res, next) => {
+  res.send("Welcome to the Doctor Appointment System API");
+});
 app.use("/api", UserAuthRouter);
 app.use("/api", doctorRoutes);
 app.use("/api", adminRoutes);
