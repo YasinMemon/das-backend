@@ -4,8 +4,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Doctor from "../models/DoctorModel.js";
 import Appointment from "../models/AppointmentModel.js";
-import { oauth2 } from "googleapis/build/src/apis/oauth2/index.js";
 import axios from "axios"
+import { OAuth2Client } from "google-auth-library";
 
 async function UserRegister(req, res) {
   try {
@@ -88,19 +88,24 @@ async function UserLogin(req, res) {
 
 async function GoogleLogin(req, res) {
   try {
-    const {code} = req.body;
-    const googleRes = await exports.oauth2client.getToken(code)
-    oauth2client.setCredentials(googleRes.tokens);
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ message: "ID token is required" });
+    }
 
-    const userRes = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${googleRes.tokens.access_token}`,
-        }
-      }
-    );
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    
+    // Verify the token with Google
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    const { name, email, picture } = userRes.data;
+    const payload = ticket.getPayload();
+    const { name, email, picture } = payload;
+
+    // Find or create user
     let user = await User.findOne({ email });
 
     if (!user) {
@@ -112,25 +117,37 @@ async function GoogleLogin(req, res) {
       });
     }
 
-    const token = jwt.sign({ id: user._id, role: "user" }, process.env.JWT_SECRET, {
+    const appToken = jwt.sign({ id: user._id, role: "user" }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
+    
     // Clear conflicting cookies
     res.clearCookie("doctorToken");
     res.clearCookie("adminToken");
+    
     res
       .status(200)
-      .cookie("userToken", token, {
+      .cookie("userToken", appToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-      .json({ message: "User logged in with Google successfully", user, role: "user", token });
+      .json({ 
+        message: "User logged in with Google successfully", 
+        user: { 
+          _id: user._id, 
+          fullName: user.fullName, 
+          email: user.email, 
+          profile_image: user.profile_image || picture
+        }, 
+        role: "user", 
+        token: appToken 
+      });
       
   } catch (error) {
-    console.error("Error logging in with Google:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Error logging in with Google:", error.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
 
