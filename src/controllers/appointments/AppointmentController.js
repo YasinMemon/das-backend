@@ -134,3 +134,117 @@ export const GetAppointments = async (req, res) => {
       .json({ message: "Internal server error.", error: error.message });
   }
 };
+
+export const ApproveAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const doctorId = req.user.id;
+
+    if (!appointmentId) {
+      return res.status(400).json({ message: "Appointment ID is required." });
+    }
+
+    // Verify the appointment belongs to the doctor
+    const appointment = await Appointment.findById(appointmentId)
+      .populate("patient", "fullName email phone")
+      .populate("doctor", "_id fullName");
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found." });
+    }
+
+    if (appointment.doctor._id.toString() !== doctorId) {
+      return res.status(403).json({ 
+        message: "You are not authorized to approve this appointment." 
+      });
+    }
+
+    // Only allow approving scheduled appointments
+    if (appointment.status !== "Scheduled") {
+      return res.status(400).json({ 
+        message: `Cannot approve an appointment with status: ${appointment.status}` 
+      });
+    }
+
+    // Update appointment status to Approved
+    appointment.status = "Approved";
+    await appointment.save();
+
+    console.log("Appointment approved:", {
+      appointmentId: appointment._id,
+      doctorId: doctorId,
+      patientId: appointment.patient._id,
+      newStatus: "Approved"
+    });
+
+    return res.status(200).json({
+      message: "Appointment approved successfully.",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error approving appointment:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error.", error: error.message });
+  }
+};
+
+export const RejectAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const doctorId = req.user.id;
+    const { reason } = req.body;
+
+    if (!appointmentId) {
+      return res.status(400).json({ message: "Appointment ID is required." });
+    }
+
+    // Verify the appointment belongs to the doctor
+    const appointment = await Appointment.findById(appointmentId)
+      .populate("patient", "fullName email phone")
+      .populate("doctor", "_id fullName");
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found." });
+    }
+
+    if (appointment.doctor._id.toString() !== doctorId) {
+      return res.status(403).json({ 
+        message: "You are not authorized to reject this appointment." 
+      });
+    }
+
+    // Only allow rejecting scheduled appointments
+    if (appointment.status !== "Scheduled") {
+      return res.status(400).json({ 
+        message: `Cannot reject an appointment with status: ${appointment.status}` 
+      });
+    }
+
+    // Update appointment status to Rejected
+    appointment.status = "Rejected";
+    // Optionally store the rejection reason if provided
+    if (reason) {
+      appointment.rejectionReason = reason;
+    }
+    await appointment.save();
+
+    console.log("Appointment rejected:", {
+      appointmentId: appointment._id,
+      doctorId: doctorId,
+      patientId: appointment.patient._id,
+      newStatus: "Rejected",
+      reason: reason || "No reason provided"
+    });
+
+    return res.status(200).json({
+      message: "Appointment rejected successfully.",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error rejecting appointment:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error.", error: error.message });
+  }
+};
