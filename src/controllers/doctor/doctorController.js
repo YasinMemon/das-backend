@@ -1,5 +1,6 @@
 import Doctor from "../../models/DoctorModel.js";
 import Appointment from "../../models/AppointmentModel.js";
+import User from "../../models/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
@@ -332,6 +333,138 @@ const markVerificationMessageShown = async (req, res) => {
   }
 };
 
+const createDoctorAppointment = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+    const { patientName, patientEmail, patientPhone, appointmentDate, timeSlot, consultationType, notes } = req.body;
+
+    // Validate all required fields
+    if (!patientName || !patientEmail || !appointmentDate || !timeSlot || !consultationType) {
+      return res.status(400).json({ message: "All required fields must be provided." });
+    }
+
+    if (!["Clinic", "Online"].includes(consultationType)) {
+      return res.status(400).json({ message: "Invalid consultation type." });
+    }
+
+    // Verify doctor exists and is verified
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    if (doctor.verified !== "Verified") {
+      return res.status(403).json({ message: "Only verified doctors can create appointments." });
+    }
+
+    // Check if doctor is available on the selected day
+    const selectedDate = new Date(appointmentDate + 'T00:00:00');
+    const dayName = selectedDate.toLocaleDateString("en-US", { weekday: "long" });
+
+    if (!doctor.available_days.includes(dayName)) {
+      return res.status(400).json({ message: "Doctor is not available on the selected day." });
+    }
+
+    // Check if time slot is available
+    const isTimeSlotAvailable = (slots, selectedTime) => {
+      if (!slots || slots.length === 0) return false;
+
+      const slotRanges = {
+        morning: { start: 9, end: 12 },
+        afternoon: { start: 12, end: 17 },
+        evening: { start: 17, end: 21 }
+      };
+
+      const timeMatch = selectedTime.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!timeMatch) return false;
+
+      let hour = parseInt(timeMatch[1]);
+      const period = timeMatch[3].toUpperCase();
+
+      if (period === 'PM' && hour !== 12) hour += 12;
+      if (period === 'AM' && hour === 12) hour = 0;
+
+      for (const slot of slots) {
+        const slotLower = slot.toLowerCase();
+        if (slotRanges[slotLower]) {
+          const range = slotRanges[slotLower];
+          if (hour >= range.start && hour < range.end) {
+            return true;
+          }
+        } else if (slot === selectedTime) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    if (!isTimeSlotAvailable(doctor.time_slots, timeSlot)) {
+      return res.status(400).json({ message: "Selected time slot is not available for this doctor." });
+    }
+
+    // Check for overlapping appointments
+    const appointmentDateObj = new Date(appointmentDate);
+    const alreadyBooked = await Appointment.findOne({
+      doctor: doctorId,
+      appointmentDate: appointmentDateObj,
+      timeSlot: timeSlot,
+      status: { $in: ["Approved", "Scheduled"] }
+    });
+
+    if (alreadyBooked) {
+      return res.status(400).json({ message: "The selected time slot is already booked." });
+    }
+
+    // Find or create patient
+    let patient = await User.findOne({ email: patientEmail });
+    
+    if (!patient) {
+      // Auto-create patient if doesn't exist
+      patient = new User({
+        fullName: patientName,
+        email: patientEmail,
+        password: "temporary_" + Math.random().toString(36).substr(2, 9) // Temporary password
+      });
+      await patient.save();
+    }
+
+    // Create the appointment with status "Approved"
+    const newAppointment = new Appointment({
+      patient: patient._id,
+      doctor: doctorId,
+      appointmentDate: appointmentDateObj,
+      timeSlot,
+      consulation_type: consultationType,
+      fee: doctor.consulation_fee,
+      status: "Approved", // Doctor-created appointments start as approved
+      notes: notes || null
+    });
+
+    await newAppointment.save();
+
+    // Populate the response with patient details
+    const populatedAppointment = await Appointment.findById(newAppointment._id)
+      .populate("patient", "fullName email phone")
+      .populate("doctor", "fullName email specialty");
+
+    console.log("Doctor-created appointment:", {
+      appointmentId: newAppointment._id,
+      doctorId,
+      patientEmail,
+      appointmentDate,
+      timeSlot
+    });
+
+    return res.status(201).json({
+      message: "Appointment created successfully.",
+      appointment: populatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error creating doctor appointment:", error);
+    return res.status(500).json({ message: "Internal server error.", error: error.message });
+  }
+};
+
 export {
   registerDoctor,
   loginDoctor,
@@ -340,4 +473,5 @@ export {
   updateSchedule,
   getAvailability,
   markVerificationMessageShown,
+  createDoctorAppointment,
 };
