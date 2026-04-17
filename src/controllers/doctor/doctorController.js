@@ -335,7 +335,7 @@ const markVerificationMessageShown = async (req, res) => {
 
 const createDoctorAppointment = async (req, res) => {
   try {
-    const doctorId = req.user.id;
+    const doctorId = new mongoose.Types.ObjectId(req.user.id);
     const { patientName, patientEmail, patientPhone, appointmentDate, timeSlot, consultationType, notes } = req.body;
 
     // Validate all required fields
@@ -465,6 +465,59 @@ const createDoctorAppointment = async (req, res) => {
   }
 };
 
+// Get booked appointments for a doctor on a specific date
+const getBookedAppointmentsForDate = async (req, res) => {
+  try {
+    const { doctorId, date } = req.params;
+
+    // Validate doctorId format
+    if (!mongoose.Types.ObjectId.isValid(doctorId)) {
+      return res.status(400).json({ message: "Invalid doctor ID." });
+    }
+
+    // Validate date format
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ message: "Invalid date format. Use YYYY-MM-DD." });
+    }
+
+    // Verify doctor exists
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    // Parse the date
+    const selectedDate = new Date(date + 'T00:00:00');
+    const nextDate = new Date(selectedDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    // Find all appointments for this doctor on this date with blocking statuses
+    const bookedAppointments = await Appointment.find({
+      doctor: new mongoose.Types.ObjectId(doctorId),
+      appointmentDate: {
+        $gte: selectedDate,
+        $lt: nextDate,
+      },
+      status: { $in: ["Approved", "Scheduled"] }
+    })
+      .select("timeSlot status")
+      .lean();
+
+    // Extract just the time slots
+    const bookedSlots = bookedAppointments.map(apt => apt.timeSlot);
+
+    return res.status(200).json({
+      message: "Booked appointments retrieved successfully.",
+      date,
+      bookedSlots,
+      bookedCount: bookedSlots.length,
+    });
+  } catch (error) {
+    console.error("Error fetching booked appointments:", error);
+    return res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
 export {
   registerDoctor,
   loginDoctor,
@@ -474,4 +527,5 @@ export {
   getAvailability,
   markVerificationMessageShown,
   createDoctorAppointment,
+  getBookedAppointmentsForDate,
 };

@@ -8,6 +8,7 @@ import {
   updateSchedule,
   markVerificationMessageShown,
   createDoctorAppointment,
+  getBookedAppointmentsForDate,
 } from "../../controllers/doctor/doctorController.js";
 import uploads from "../../config/multer.js";
 import verifyToken, { verifyDoctor } from "../../middlewares/authMiddleware.js";
@@ -30,5 +31,6 @@ doctorRoutes.put("/doctor/schedule", verifyToken, updateSchedule);
 doctorRoutes.get("/doctor/availability", verifyToken, getAvailability);
 doctorRoutes.post("/doctor/mark-verification-message-shown", verifyToken, markVerificationMessageShown);
 doctorRoutes.post("/doctor/create-appointment", verifyToken, createDoctorAppointment);
+doctorRoutes.get("/doctor/:doctorId/booked-appointments/:date", getBookedAppointmentsForDate);
 
 export default doctorRoutes;
