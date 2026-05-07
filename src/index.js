@@ -9,6 +9,7 @@ import cors from "cors";
 import adminRoutes from "./routes/adminRoutes/adminRoutes.js";
 import cookieParser from "cookie-parser";
 import appointmentRoutes from "./routes/appointmentRoutes/AppointmentRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes/PaymentRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use("/api", UserAuthRouter);
 app.use("/api", doctorRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", appointmentRoutes);
+app.use("/api", paymentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

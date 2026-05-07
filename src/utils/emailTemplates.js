@@ -315,6 +315,106 @@ export const emailTemplates = {
       </html>
     `;
   },
+  /**
+   * Appointment Confirmation Email
+   * @param {Object} details - Appointment details
+   * @returns {string} - HTML email template
+   */
+  appointmentConfirmation: (details) => {
+    const { 
+      patientName, 
+      doctorName, 
+      date, 
+      time, 
+      type, 
+      fee, 
+      transactionId, 
+      role // 'patient', 'doctor', or 'admin'
+    } = details;
+
+    const roleText = {
+      patient: `Your appointment with <strong>Dr. ${doctorName}</strong> has been successfully confirmed.`,
+      doctor: `A new appointment has been booked with you by <strong>${patientName}</strong>.`,
+      admin: `A new appointment has been confirmed between <strong>${patientName}</strong> and <strong>Dr. ${doctorName}</strong>.`
+    };
+
+    const primaryColor = "#2563eb"; // Blue 600
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: 'Inter', 'Arial', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e2e8f0; }
+            .header { background-color: ${primaryColor}; color: white; padding: 40px 20px; text-align: center; }
+            .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.025em; }
+            .content { padding: 40px 30px; color: #1e293b; }
+            .greeting { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+            .message { line-height: 1.6; margin-bottom: 30px; color: #475569; }
+            .details-card { background-color: #f1f5f9; border-radius: 8px; padding: 24px; margin-bottom: 30px; border: 1px solid #e2e8f0; }
+            .detail-item { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; }
+            .detail-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+            .label { font-weight: 600; color: #64748b; font-size: 13px; text-transform: uppercase; }
+            .value { font-weight: 700; color: #0f172a; font-size: 15px; }
+            .footer { background-color: #f8fafc; padding: 24px; text-align: center; color: #64748b; font-size: 12px; border-top: 1px solid #e2e8f0; }
+            .button { display: inline-block; background-color: ${primaryColor}; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 700; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Appointment Confirmed</h1>
+            </div>
+            <div class="content">
+              <div class="greeting">Hello,</div>
+              <p class="message">${roleText[role]}</p>
+              
+              <div class="details-card">
+                <div class="detail-item">
+                  <span class="label">Patient</span>
+                  <span class="value">${patientName}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Doctor</span>
+                  <span class="value">Dr. ${doctorName}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Date</span>
+                  <span class="value">${date}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Time</span>
+                  <span class="value">${time}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Consultation</span>
+                  <span class="value">${type}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Amount Paid</span>
+                  <span class="value">$${fee}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">Transaction ID</span>
+                  <span class="value">${transactionId}</span>
+                </div>
+              </div>
+              
+              <center>
+                <a href="${process.env.APP_URL || 'http://localhost:5173'}/profile" class="button">View Appointment Details</a>
+              </center>
+            </div>
+            <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} ${process.env.APP_NAME || 'DocBook'}. All rights reserved.</p>
+              <p>This is a confirmation email for your paid appointment.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  },
 };
 
 export default emailTemplates;
