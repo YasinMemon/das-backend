@@ -53,7 +53,7 @@ async function sendEmail(email, subject, htmlContent) {
 
     // Send email
     const info = await transport.sendMail(mailOptions);
-    console.log('✓ Email sent successfully:', info.messageId);
+    console.log(`✓ Email sent successfully to ${email}:`, info.messageId);
     return {
       success: true,
       messageId: info.messageId,
