@@ -9,6 +9,9 @@ import {
   markVerificationMessageShown,
   createDoctorAppointment,
   getBookedAppointmentsForDate,
+  updateRazorpayOnboarding,
+  updateBankDetails,
+  getDoctorPaymentInfo,
 } from "../../controllers/doctor/doctorController.js";
 import uploads from "../../config/multer.js";
 import verifyToken, { verifyDoctor } from "../../middlewares/authMiddleware.js";
@@ -32,5 +35,10 @@ doctorRoutes.get("/doctor/availability", verifyToken, getAvailability);
 doctorRoutes.post("/doctor/mark-verification-message-shown", verifyToken, markVerificationMessageShown);
 doctorRoutes.post("/doctor/create-appointment", verifyToken, createDoctorAppointment);
 doctorRoutes.get("/doctor/:doctorId/booked-appointments/:date", getBookedAppointmentsForDate);
+
+// Razorpay Connect / Payment onboarding
+doctorRoutes.put("/doctor/razorpay-onboarding", verifyToken, updateRazorpayOnboarding);
+doctorRoutes.put("/doctor/bank-details", verifyToken, updateBankDetails);
+doctorRoutes.get("/doctor/payment-info", verifyToken, getDoctorPaymentInfo);
 
 export default doctorRoutes;

@@ -498,7 +498,7 @@ const getBookedAppointmentsForDate = async (req, res) => {
         $gte: selectedDate,
         $lt: nextDate,
       },
-      status: { $in: ["Approved", "Scheduled"] }
+      status: { $in: ["Scheduled", "Payment_Pending", "Pending_Approval", "Confirmed"] }
     })
       .select("timeSlot status")
       .lean();
@@ -518,6 +518,119 @@ const getBookedAppointmentsForDate = async (req, res) => {
   }
 };
 
+/**
+ * Update doctor's Razorpay onboarding details
+ */
+const updateRazorpayOnboarding = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+    const { razorpay_account_id, razorpay_key_id, razorpay_key_secret } = req.body;
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    if (razorpay_account_id) doctor.razorpay_account_id = razorpay_account_id;
+    if (razorpay_key_id) doctor.razorpay_key_id = razorpay_key_id;
+    if (razorpay_key_secret) doctor.razorpay_key_secret = razorpay_key_secret;
+    doctor.onboarding_status = "In_Progress";
+
+    // If all fields are present, mark as completed
+    if (doctor.razorpay_account_id && doctor.razorpay_key_id && doctor.razorpay_key_secret) {
+      doctor.onboarding_status = "Completed";
+    }
+
+    await doctor.save();
+
+    return res.status(200).json({
+      message: "Razorpay onboarding details updated successfully.",
+      onboarding_status: doctor.onboarding_status,
+    });
+  } catch (error) {
+    console.error("Error updating Razorpay onboarding:", error);
+    return res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+/**
+ * Update doctor's bank account details
+ */
+const updateBankDetails = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+    const { account_number, ifsc_code, beneficiary_name, bank_name } = req.body;
+
+    if (!account_number || !ifsc_code || !beneficiary_name) {
+      return res.status(400).json({ message: "Account number, IFSC code, and beneficiary name are required." });
+    }
+
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    doctor.bank_account_details = {
+      account_number,
+      ifsc_code,
+      beneficiary_name,
+      bank_name: bank_name || null,
+    };
+
+    await doctor.save();
+
+    return res.status(200).json({
+      message: "Bank account details updated successfully.",
+      bank_account_details: {
+        ...doctor.bank_account_details.toObject(),
+        account_number: "****" + account_number.slice(-4), // Mask account number
+      },
+    });
+  } catch (error) {
+    console.error("Error updating bank details:", error);
+    return res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
+/**
+ * Get doctor's payment/onboarding info
+ */
+const getDoctorPaymentInfo = async (req, res) => {
+  try {
+    const doctorId = req.user.id;
+
+    const doctor = await Doctor.findById(doctorId).select(
+      "razorpay_account_id kyc_status bank_account_details onboarding_status total_earnings pending_settlement"
+    );
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found." });
+    }
+
+    // Mask sensitive data
+    const bankDetails = doctor.bank_account_details ? {
+      account_number: doctor.bank_account_details.account_number
+        ? "****" + doctor.bank_account_details.account_number.slice(-4)
+        : null,
+      ifsc_code: doctor.bank_account_details.ifsc_code,
+      beneficiary_name: doctor.bank_account_details.beneficiary_name,
+      bank_name: doctor.bank_account_details.bank_name,
+    } : null;
+
+    return res.status(200).json({
+      razorpay_account_id: doctor.razorpay_account_id ? "****" + doctor.razorpay_account_id.slice(-4) : null,
+      kyc_status: doctor.kyc_status,
+      bank_account_details: bankDetails,
+      onboarding_status: doctor.onboarding_status,
+      total_earnings: doctor.total_earnings,
+      pending_settlement: doctor.pending_settlement,
+    });
+  } catch (error) {
+    console.error("Error fetching payment info:", error);
+    return res.status(500).json({ message: "Server error.", error: error.message });
+  }
+};
+
 export {
   registerDoctor,
   loginDoctor,
@@ -528,4 +641,7 @@ export {
   markVerificationMessageShown,
   createDoctorAppointment,
   getBookedAppointmentsForDate,
+  updateRazorpayOnboarding,
+  updateBankDetails,
+  getDoctorPaymentInfo,
 };

@@ -39,7 +39,7 @@ async function UserRegister(req, res) {
         `Welcome to ${process.env.APP_NAME}!`,
         emailContent
       );
-      
+
       if (emailResult.success) {
         console.log("Welcome email sent successfully to:", email);
       } else {
@@ -112,13 +112,13 @@ async function UserLogin(req, res) {
 async function GoogleLogin(req, res) {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       return res.status(400).json({ message: "ID token is required" });
     }
 
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    
+
     // Verify the token with Google
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -143,11 +143,11 @@ async function GoogleLogin(req, res) {
     const appToken = jwt.sign({ id: user._id, role: "user" }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    
+
     // Clear conflicting cookies
     res.clearCookie("doctorToken");
     res.clearCookie("adminToken");
-    
+
     res
       .status(200)
       .cookie("userToken", appToken, {
@@ -156,18 +156,18 @@ async function GoogleLogin(req, res) {
         sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-      .json({ 
-        message: "User logged in with Google successfully", 
-        user: { 
-          _id: user._id, 
-          fullName: user.fullName, 
-          email: user.email, 
+      .json({
+        message: "User logged in with Google successfully",
+        user: {
+          _id: user._id,
+          fullName: user.fullName,
+          email: user.email,
           profile_image: user.profile_image || picture
-        }, 
-        role: "user", 
-        token: appToken 
+        },
+        role: "user",
+        token: appToken
       });
-      
+
   } catch (error) {
     console.error("Error logging in with Google:", error.message);
     return res.status(401).json({ message: "Invalid or expired token" });
