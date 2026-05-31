@@ -126,6 +126,47 @@ const DoctorSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    // Razorpay Connect / Multi-vendor fields
+    razorpay_account_id: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    razorpay_key_id: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    razorpay_key_secret: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    kyc_status: {
+      type: String,
+      enum: ["Not_Started", "Pending", "Verified", "Failed"],
+      default: "Not_Started",
+    },
+    bank_account_details: {
+      account_number: { type: String, trim: true, default: null },
+      ifsc_code: { type: String, trim: true, default: null },
+      beneficiary_name: { type: String, trim: true, default: null },
+      bank_name: { type: String, trim: true, default: null },
+    },
+    onboarding_status: {
+      type: String,
+      enum: ["Not_Started", "In_Progress", "Completed", "Failed"],
+      default: "Not_Started",
+    },
+    // Earnings tracking
+    total_earnings: {
+      type: Number,
+      default: 0,
+    },
+    pending_settlement: {
+      type: Number,
+      default: 0,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

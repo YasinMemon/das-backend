@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/UserModel.js";
 import Doctor from "../models/DoctorModel.js";
 import Admin from "../models/adminModel.js";
+import Appointment from "../models/AppointmentModel.js";
 import { ConnectDB } from "../config/db.js";
 
 dotenv.config();
@@ -16,6 +17,7 @@ const seedData = async () => {
     await User.deleteMany({});
     await Doctor.deleteMany({});
     await Admin.deleteMany({});
+    await Appointment.deleteMany({});
 
     console.log("Database cleared.");
 
@@ -95,12 +97,34 @@ const seedData = async () => {
       },
     ];
 
+    const createdDoctors = [];
     for (const doc of doctors) {
-        const newDoc = new Doctor(doc);
-        await newDoc.save();
+      const newDoc = new Doctor(doc);
+      await newDoc.save();
+      createdDoctors.push(newDoc);
     }
-    
+
     console.log("Doctors created: robert@example.com, sarah@example.com / password123");
+
+    // Create a Test Appointment in Pending_Approval state for Dr. Robert (the first doctor)
+    const firstUser = await User.findOne({ email: "john@example.com" });
+    if (firstUser && createdDoctors.length > 0) {
+      const testAppointment = new Appointment({
+        patient: firstUser._id,
+        doctor: createdDoctors[0]._id,
+        appointmentDate: new Date(Date.now() + 86400000), // tomorrow
+        timeSlot: "10:00 AM",
+        consulation_type: "Clinic",
+        status: "Pending_Approval",
+        fee: createdDoctors[0].consulation_fee,
+        paymentStatus: "Held",
+        amountPaid: createdDoctors[0].consulation_fee,
+        transactionId: "pay_test_12345",
+        symptoms: "Mild fever and cough",
+      });
+      await testAppointment.save();
+      console.log("Test Appointment created in Pending_Approval state for Dr. Robert.");
+    }
 
     console.log("Seeding completed successfully.");
     process.exit();
